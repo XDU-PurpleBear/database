@@ -1,0 +1,38 @@
+The infos for user(reader and librarian)
+* UUID
+* user name
+* first name
+* last name
+* birthday
+* date of registering
+* balance
+* sex
+* tel-phone number (mobile)
+* right
+
+The infos for book(kind)
+* ISBN
+* China Library Classification (number), clc for short
+* name of book
+* authors of book
+* publisher of book
+* edition
+* date for publishing
+
+The infos for book(instance)
+* UUID
+* isbn
+* status aubr
+  - a for available
+  - b for borrow
+  - u for unavailable
+  - r for reserve
+  - e.g. when available: a---
+         when unavailable: --b- 
+* uuid for operation
+  
+
+The operation for book
+* UUID
+* return dates(array)
+* statue (same to instance)
