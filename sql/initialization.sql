@@ -38,6 +38,7 @@ COMMENT ON SCHEMA opt_log
 -- create table for account (readers and librarians)
 CREATE TABLE table_account
   ( key_uuid          UUID          PRIMARY KEY
+  , key_password      VARCHAR(512)
   , key_user_name     VARCHAR(64)   UNIQUE
   , key_first_name    VARCHAR(64)
   , key_last_name     VARCHAR(64)
@@ -62,6 +63,7 @@ CREATE TABLE table_book_kind
   , key_publisher    VARCHAR(64)
   , key_edition      INTEGER
   , key_publish_date DATE
+  , key_imgs         BYTEA
   )
 ;
 COMMENT ON TABLE table_book_kind
