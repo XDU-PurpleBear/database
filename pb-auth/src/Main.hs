@@ -18,12 +18,8 @@ import Database.Redis
 import Data.Time
 import qualified Data.ByteString as B hiding (pack,unpack)
 import qualified Data.ByteString.Char8 as B (pack,unpack)
-
-
-data PBRight = RBRight { expire :: UTCTime
-                       , right  :: Double
-                       }
-               deriving (Show,Read)
+import Control.Monad
+import Control.Moand.Random
 
 
 data PBAuth = PBAuth
@@ -31,50 +27,96 @@ data PBAuth = PBAuth
               }
 
 mkYesod "PBAuth" [parseRoute|
-/aii/v1/auth   GET POST
-/aii/v1/unauth GET
+/aii/v1/auth   POST PUT DELETE
 |]
 
 instance Yesod PBAuth
 
 
-getAuth :: Handler Value
-getAuth = do
-  token <- lookupGetParam "token"
+postAuth :: Handler Value
+postAuth = do
+  token <- lookupPostParam "token"
   case token of
-    Nothing -> return [ "status" .= ("error" :: T.Text)
-                      , "meg" .= ("need token" :: T.Text)
+    Nothing -> return [ "status"      .= ("error" :: T.Text)
+                      , "meg"         .= ("need token" :: T.Text)
                       , "status-code" .= 10
                       ]
     Just t  -> (pbRedis <$> getYesod)
       >>= \cp -> withResource cp
       (\c -> do
-          rep <- runRedis c $ get TE.encodeUtf8 token
+          let token' = TE.encodeUtf8 token
+          rep <- runRedis c $ do
+            r <- get token'
+            e <- ttl token'
+            case (e,r) of
+              (Left t,_)          -> return $ Left t
+              (_,Left t)          -> reutrn $ Left
+              (Right e',Right r') -> return $ Right (e',r')
           case rep of
-            Left x -> return [ "ststus" .= ("error" :: T.Text)
-                             , "meg" .= show x
-                             , "status-code" .= 11
-                             ]
-            Right Nothing -> return [ "status" .= ("success" :: T.Text)
-                                    , "contant" = 0
-                                    ]
-            Right (Just str) -> do
-              now <- getCurrentTime
-              let r = read $ B.unpack str
-                  diff = diffUTCTime (expire r) now > 0
-              (realR,nextExpire) <-
-                if | diff > 300 -> return $ (right r,expire r)
-                   | diff > 0   ->
-                     let addTime = if right r < 2 then 1800 else 7200
-                     in return $ (right r,addUTCTime addTime $ expire r)
-                   | otherwise -> return (0,now)
-              return [ "status" .= "success"
-                     , "right" .= realR
-                     , "nextExpire" .= diffUTCTime nextExpire now
+            Left x            -> return
+                                 [ "status"      .= ("error" :: T.Text)
+                                 , "meg"         .= show x
+                                 , "status-code" .= 11
+                                 ]
+            Right (_,Nothing) -> return
+                                 [ "status"  .= ("success" :: T.Text)
+                                 , "content" .= 0
+                                 ]
+            Right (Just e,Just r') -> do
+              let r = read $ B.unpack r'
+              newE <-
+                if (e < 300)
+                then runRedis c $ do
+                  expire token' $ if r < 2 then 1800 else 7200
+                  Right newE <- ttl token'
+                  return newE
+                else return $ Right e
+              return [ "status"    .= "success"
+                     , "right"     .= r
+                     , "newExpire" .= newE
                      ]
-          )
+      )
 
 
+newmapChar :: Int -> Char
+newmapChar i =
+  let digit = i + 0x30
+      upChr = if digit > 0x39 then digit + 0x07 else digit
+      loChr = if upChr > 0x5A then upChr + 0x6  else upChr
+  in chr loChr
+
+retryNewKey :: (B.ByteString -> Handler Bool)
+            -> Handler ByteString
+retryNewKey exst = do
+  randStr <- B.pack . map newmapChar . take 64 <$> getRandomRs (0,61)
+  rt <- exst randStr
+  if rt
+    then retryNewKey exst
+    else return randStr
+
+putAuth :: Handler Value
+putAuth = do
+  right' <- lookupPostParam "right"
+  case token of
+    Nothing -> return [ "status"      .= ("error" :: T.Text)
+                      , "msg"         .= ("need right" :: T.Text)
+                      , "status-code" .= 12
+                      ]
+    Just r  -> (pdRedis <$> getYesod)
+      >>= \cp -> withResource cp
+      (\c -> do
+          randStr <- newmapChar $ \k -> runRedis c $ do
+            rt <- exists k
+            case rt of
+              Right False -> False
+              _           -> True
+          runRedis c $ do
+            set randStr $ B.pack $ show r
+            expire randStr $ if r < 2 then 1800 else 7200
+          return [ "status"      .= ("success" :: T.Text)
+                 , "status-code" .= 0
+                 ]
+      )             
 
 
 main :: IO ()
