@@ -116,7 +116,8 @@ putAuth = do
           return [ "status"      .= ("success" :: T.Text)
                  , "status-code" .= 0
                  ]
-      )             
+      )
+      
 
 
 main :: IO ()
