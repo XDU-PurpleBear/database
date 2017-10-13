@@ -8,4 +8,4 @@ stack test --ghc-options -O2 --ghc-options -threaded
 
 echo
 echo try to initialze the database by use sql files
-psql -f sql/initialzation.sql
+sudo su postgres -c 'psql -f sql/initialzation.sql'
