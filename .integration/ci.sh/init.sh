@@ -27,4 +27,4 @@ echo new PATH: $PATH
 
 echo start pg
 sudo service postgresql start
-sudo /usr/lib/postgresql/10/bin/pg_ctl -D /var/lib/postgresql/10/main -l logfile start
+sudo su postgres -c '/usr/lib/poastgresql/10/bin/pg_ctl -D /var/lib/postgresql/10/main -l logfile start'
