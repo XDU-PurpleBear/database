@@ -5,17 +5,19 @@ sudo: required
 dist: trusty
 
 
-- env: GHC_VER=8.2.1 THREADED=t IS_DOCKER=docker
-  addons:
-    apt:
-      sources:
-        - hvr-ghc
-      packages:
-        - ghc-8.2.1
-        - redis-server
-        - postgresql
-        - wget 
-        - curl
+matrix:
+  include:
+    - env: GHC_VER=8.2.1 THREADED=t IS_DOCKER=docker
+      addons:
+        apt:
+          sources:
+            - hvr-ghc
+          packages:
+            - ghc-8.2.1
+            - redis-server
+            - postgresql
+            - wget 
+            - curl
 
 
 # pre-install
