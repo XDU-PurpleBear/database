@@ -17,8 +17,10 @@ CREATE DATABASE purple
        CONNECTION LIMIT = -1
 ;
 COMMENT ON DATABASE purple
-  IS 'The database for library manage system.'
-;
+  IS 'The database for library manage syst'
+
+-- change database
+\c purple
 
 -- operation loggings
 CREATE SCHEMA opt_log;
