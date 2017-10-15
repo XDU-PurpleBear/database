@@ -9,13 +9,13 @@ matrix:
   include:
     - env: GHC_VER=8.2.1 THREADED=t IS_DOCKER=docker
       addons:
+        postgresql: "9.6"
         apt:
           sources:
             - hvr-ghc
           packages:
             - ghc-8.2.1
             - redis-server
-            - postgresql
             - wget 
             - curl
 
