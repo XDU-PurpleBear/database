@@ -23,6 +23,7 @@ if [ x"$TRAVIS_PULL_REQUEST" == "xfalse" ]; then
     echo build pb-auth and pb-logger  image
     cd $TRAVIS_BUILD_DIR
     stack install pb-auth pb-logger --ghc-options -O2 --ghc-options -threaded
+    export GIT_TAG=`echo $GIT_TAG | sed 's/\//-/g'`
     export PB_AUTH_IMAGE_TAG=pb-auth-$GIT_TAG
     export PB_AUTH_IMAGE_TAG=pb-logger-$GIT_TAG
     export PGSQL_IMAGE_TAG=pgsql-$GIT_TAG
