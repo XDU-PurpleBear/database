@@ -24,8 +24,3 @@ stack config set system-ghc --global true
 echo setting up ghc
 export PATH=/opt/ghc/$GHC_VER/bin:$PATH
 echo new PATH: $PATH
-
-echo start pg
-sudo service postgresql start
-sudo mkdir -p /data/pg
-sudo su postgres -c 'pg_ctl -D /data/pg -l logfile start'
