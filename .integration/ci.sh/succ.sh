@@ -32,16 +32,16 @@ if [ x"$TRAVIS_PULL_REQUEST" == "xfalse" ]; then
     sudo cp $TRAVIS_BUILD_DIR/.integration/dockerfiles/pb-auth.dockerfile   docker.tmp
     sudo cp $TRAVIS_BUILD_DIR/.integration/dockerfiles/pb-logger.dockerfile docker.tmp
     cd docker.tmp
-    docker build -t ??/??:$PB_AUTH_IMAGE_TAG   -f pb-auth.dockerfile   .
-    docker build -t ??/??:$PB_LOGGER_IMAGE_TAG -f pb-logger.dockerfile .
+    docker build -t qinka/pb-database:$PB_AUTH_IMAGE_TAG   -f pb-auth.dockerfile   .
+    docker build -t qinka/pb-database:$PB_LOGGER_IMAGE_TAG -f pb-logger.dockerfile .
     echo build PostgreSQL image
     cd $TRAVIS_BUILD_DIR
     echo copy files
     sudo cp $TRAVIS_BUILD_DIR/.integration/dockerfiles/pgsql.dockerfile docker.tmp
     sudo cp $TRAVIS_BUILD_DIR/sql/initialzation.sql                     docker.tmp
-    docker build -t ??/??:$PGSQL_IMAGE_TAG -f pgsql.dockerfile .
+    docker build -t qinka/pb-database:$PGSQL_IMAGE_TAG -f pgsql.dockerfile .
     echo push docker images
-    docker push ??/??
+    docker push qinka/pb-database
   else
     echo skip building docker image
   fi

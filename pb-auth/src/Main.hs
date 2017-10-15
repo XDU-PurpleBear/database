@@ -152,7 +152,7 @@ deleteAuthR = do
           case rt of
             Left t  -> return $ object
                        [ "status"      .= ("error" :: T.Text)
-                       , "meg"         .= show t
+                       , "msg"         .= show t
                        , "status-code" .= (11 :: Int)
                        ]
             Right v -> return $ object
