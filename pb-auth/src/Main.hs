@@ -1,28 +1,28 @@
+{-# LANGUAGE MultiWayIf        #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeFamilies      #-}
 
 
 module Main
   ( main
   ) where
 
-import Yesod.Core
-import Data.Aeson
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as TE
-import Data.Pool
-import Database.Redis
-import Data.Time
-import qualified Data.ByteString as B hiding (pack,unpack)
-import qualified Data.ByteString.Char8 as B (pack,unpack)
-import Control.Monad
-import Control.Monad.Random
-import System.Environment
-import Yesod.Core.Json
-import Data.Char
+import           Control.Monad
+import           Control.Monad.Random
+import           Data.Aeson
+import qualified Data.ByteString       as B hiding (pack, unpack)
+import qualified Data.ByteString.Char8 as B (pack, unpack)
+import           Data.Char
+import           Data.Pool
+import qualified Data.Text             as T
+import qualified Data.Text.Encoding    as TE
+import           Data.Time
+import           Database.Redis
+import           System.Environment
+import           Yesod.Core
+import           Yesod.Core.Json
 
 data PBAuth = PBAuth
               { pbRedis :: Pool Connection
@@ -63,7 +63,7 @@ postAuthR = do
                                   ]
             Right (_,Nothing)  -> return $ object
                                   [ "status"  .= ("success" :: T.Text)
-                                  , "content" .= (0 :: Int)
+                                  , "nextExipre" .= (0 :: Int)
                                   ]
             Right (e',Just r') -> do
               let r = read $ B.unpack r'
