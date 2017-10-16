@@ -39,7 +39,8 @@ if [ x"$TRAVIS_PULL_REQUEST" == "xfalse" ]; then
     cd $TRAVIS_BUILD_DIR
     echo copy files
     sudo cp $TRAVIS_BUILD_DIR/.integration/dockerfiles/pgsql.dockerfile docker.tmp
-    sudo cp $TRAVIS_BUILD_DIR/sql/initialization.sql                    docker.tmp
+    sudo cp $TRAVIS_BUILD_DIR/sql/initialization.sql docker.tmp
+    cd docker.tmp
     docker build -t qinka/pb-database:$PGSQL_IMAGE_TAG -f pgsql.dockerfile .
     echo push docker images
     docker push qinka/pb-database
