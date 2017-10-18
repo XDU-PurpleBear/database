@@ -38,6 +38,7 @@ resolver: nightly-2017-10-08
 packages:
 - pb-auth
 - pb-logger
+- pb-spider
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps: []
