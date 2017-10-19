@@ -63,7 +63,7 @@ parseBookKind = do
       spaces
       key <- map toLower <$> many (letter <|> digit <|> space)
       char ':'
-      spaces
+      skipMany(oneOf "\t ")
       value <- (reverse . dropWhile (==' ') . reverse . dropWhile (==' ')) <$> many (noneOf "\r\n")
       spaces
       skipNewLine
