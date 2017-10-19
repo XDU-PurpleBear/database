@@ -76,7 +76,7 @@ insertBookKind c BookKind{..} img = do
                       ( key_isbn, key_clc, key_name, key_auth
                       , key_publisher, key_edition, key_publish_date
                       , key_imgs) VALUES (?,?,?,?,?,?,?,?) |]
-    (printf "%010d" bkISBN,"NaN",bkTitle,PGArray bkAuthor,bkPublisher,1::Int,now,Binary <$> img)
+    ((printf "%010d" bkISBN :: String),"NaN",bkTitle,PGArray bkAuthor,bkPublisher,1::Int,now,Binary <$> img)
   putStrLn $ "insert " ++ show rt ++ "line(s)" ++ printf "%010d"bkISBN
   return ()
 

@@ -18,6 +18,6 @@ insertBookCopy c isbn = do
   rt <- execute c [sql| INSERT INTO table_book_instance
                       ( key_uuid, key_isbn, key_status)
                       VALUES (uuid_generate_v4(),?,'a---')
-                      |] (Only $ printf "%010d" isbn)
+                      |] (Only (printf "%010d" isbn :: String))
   putStrLn $ "insert " ++ show rt ++ " book instance(s)"
   return ()
