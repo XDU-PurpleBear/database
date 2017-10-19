@@ -76,7 +76,7 @@ insertBookKind c BookKind{..} img = do
                       ( key_isbn, key_clc, key_name, key_auth
                       , key_publisher, key_edition, key_publish_date
                       , key_imgs) VALUES (?,?,?,?,?,?,?,?) |]
-    (bkISBN,"NaN",bkTitle,PGArray bkAuthor,bkPublisher,1::Int,now,Binary <$> img)
+    (printf "%010d" bkISBN,"NaN",bkTitle,PGArray bkAuthor,bkPublisher,1::Int,now,Binary <$> img)
   putStrLn $ "insert " ++ show rt ++ "line(s)" ++ printf "%010d"bkISBN
   return ()
 
@@ -123,7 +123,7 @@ addByISBN c isbn = insertCopy =<< update =<< fetchImg =<< fetchBookInfo isbn
         update (Just b ,img)     = do
           rt <- E.try $ insertBookKind c b img :: IO (Either SomeException ())
           print rt
-          return $ Just isbn
+          return $ Just $ bkISBN b
         insertCopy Nothing  = return ()
         insertCopy (Just i) = do
           n <- getRandomR (2,6)
