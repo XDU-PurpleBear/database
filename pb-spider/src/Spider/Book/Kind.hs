@@ -1,6 +1,6 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 -- the kind for book
 
@@ -14,30 +14,30 @@ module Spider.Book.Kind
   ) where
 
 
-import Text.Parsec 
-import Data.List
-import Data.Maybe
-import Data.Char
-import Data.List.Split(splitOn)
-import Data.Time
-import Database.PostgreSQL.Simple
-import Database.PostgreSQL.Simple.SqlQQ
-import Database.PostgreSQL.Simple.Types
-import qualified Data.ByteString as B hiding (pack,unpack)
-import qualified Data.ByteString.Char8 as B (pack,unpack)
-import qualified Network.HTTP as HTTP
-import Network.HTTP(Request(..))
-import qualified Network.Browser as Browser
-import Text.Printf
-import Control.Exception as E
-import Control.Monad.Random
-import Spider.Book.Copy
+import           Control.Exception                as E
+import           Control.Monad.Random
+import qualified Data.ByteString                  as B hiding (pack, unpack)
+import qualified Data.ByteString.Char8            as B (pack, unpack)
+import           Data.Char
+import           Data.List
+import           Data.List.Split                  (splitOn)
+import           Data.Maybe
+import           Data.Time
+import           Database.PostgreSQL.Simple
+import           Database.PostgreSQL.Simple.SqlQQ
+import           Database.PostgreSQL.Simple.Types
+import qualified Network.Browser                  as Browser
+import           Network.HTTP                     (Request (..))
+import qualified Network.HTTP                     as HTTP
+import           Spider.Book.Copy
+import           Text.Parsec
+import           Text.Printf
 
 data BookKind a = BookKind
-  { bkTitle :: a
-  , bkCoverUrl :: a
-  , bkAuthor :: [a]
-  , bkISBN   :: Int
+  { bkTitle     :: a
+  , bkCoverUrl  :: a
+  , bkAuthor    :: [a]
+  , bkISBN      :: Int
   , bkPublisher :: a
   }
   deriving (Show)
@@ -77,7 +77,7 @@ insertBookKind c BookKind{..} img = do
                       , key_publisher, key_edition, key_publish_date
                       , key_imgs) VALUES (?,?,?,?,?,?,?,?) |]
     (bkISBN,"NaN",bkTitle,PGArray bkAuthor,bkPublisher,1::Int,now,Binary <$> img)
-  putStrLn $ "insert " ++ show rt ++ "line(s)"
+  putStrLn $ "insert " ++ show rt ++ "line(s)" ++ printf "%010d"bkISBN
   return ()
 
 
@@ -86,7 +86,7 @@ instance Functor Request where
     { rqURI = rqURI r
     , rqMethod = rqMethod r
     , rqHeaders = rqHeaders r
-    , rqBody = f $ rqBody r 
+    , rqBody = f $ rqBody r
     }
 
 fetchBookCover :: BookKind String -> IO (Maybe B.ByteString)
