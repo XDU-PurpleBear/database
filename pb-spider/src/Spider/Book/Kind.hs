@@ -5,7 +5,12 @@
 -- the kind for book
 
 module Spider.Book.Kind
-  (
+  ( addByISBN
+  , BookKind(..)
+  , parseBookKind
+  , insertBookKind
+  , fetchBookCover
+  , fetchBookInfo
   ) where
 
 
@@ -25,25 +30,8 @@ import Network.HTTP(Request(..))
 import qualified Network.Browser as Browser
 import Text.Printf
 import Control.Exception as E
-
-
-{-
-Project OpenISBN 
------------------------------------------------------------------------------------ 
-Title: Aleph 
-Cover:  http://www.openisbn.com/cover/0007435517_72.jpg 
-Author: Paulo Coelho, 
-Publisher: HarperCollins Publishers 
-Pages: 320 
-ISBN10: 0007435517 
-ISBN13: 9780007435517
-URL: http://www.openisbn.com/isbn/9780007435517/ 
-List Price: 27.50 
-Price comparison: 
-URL: http://www.openisbn.com/price/9780007435517/ 
------------------------------------------------------------------------------------ 
-http://www.openisbn.com
--}
+import Control.Monad.Random
+import Spider.Book.Copy
 
 data BookKind a = BookKind
   { bkTitle :: a
@@ -84,7 +72,7 @@ parseBookKind = do
 insertBookKind :: Connection ->  BookKind String -> Maybe B.ByteString -> IO ()
 insertBookKind c BookKind{..} img = do
   now <- getCurrentTime
-  rt  <- execute c [sql| insert into table_book_kind
+  rt  <- execute c [sql| INSERT  INTO table_book_kind
                       ( key_isbn, key_clc, key_name, key_auth
                       , key_publisher, key_edition, key_publish_date
                       , key_imgs) VALUES (?,?,?,?,?,?,?,?) |]
@@ -126,13 +114,18 @@ fetchBookInfo isbn = do
         )
 
 addByISBN :: Connection -> Int -> IO ()
-addByISBN c isbn = update =<< fetchImg =<< fetchBookInfo isbn
+addByISBN c isbn = insertCopy =<< update =<< fetchImg =<< fetchBookInfo isbn
   where fetchImg Nothing    = do
           putStrLn $ "Book(" ++ printf "%010d" isbn ++ ") is unavailable."
           return (Nothing,Nothing)
         fetchImg b@(Just i) = (,) <$> pure b <*> fetchBookCover i
-        update (Nothing,Nothing) = return ()
+        update (Nothing,Nothing) = return Nothing
         update (Just b ,img)     = do
           rt <- E.try $ insertBookKind c b img :: IO (Either SomeException ())
           print rt
+          return $ Just isbn
+        insertCopy Nothing  = return ()
+        insertCopy (Just i) = do
+          n <- getRandomR (2,6)
+          replicateM_ n $ insertBookCopy c i
           return ()
