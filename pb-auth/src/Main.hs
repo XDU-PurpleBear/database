@@ -27,6 +27,11 @@ import           Yesod.Core.Json
 data PBAuth = PBAuth
               { pbRedis :: Pool Connection
               }
+data Record = Record
+              { rUUID  :: String
+              , rRight :: Int
+              }
+              deriving (Show,Read,Eq)
 
 mkYesod "PBAuth" [parseRoutes|
 /aii/v1/auth AuthR  POST PUT DELETE
@@ -70,13 +75,14 @@ postAuthR = do
               newE <-
                 if e' < 300
                 then runRedis c $ do
-                  expire token' $ if r < 2 then 1800 else 7200
+                  expire token' $ if rRight r < 2 then 1800 else 7200
                   Right newE <- ttl token'
                   return newE
                 else return e'
               return $ object
                 [ "status"    .= ("success" :: T.Text)
-                , "right"     .= (r :: Int)
+                , "right"     .= (rRight r)
+                , "uuid"      .= (rUUID r)
                 , "newExpire" .= newE
                 ]
       )
@@ -101,13 +107,19 @@ retryNewKey exst = do
 putAuthR :: Handler Value
 putAuthR = do
   right' <- lookupPostParam "right"
-  case right' of
-    Nothing -> return $ object
-               [ "status"      .= ("error" :: T.Text)
-               , "msg"         .= ("need right" :: T.Text)
-               , "status-code" .= (12 :: Int)
-               ]
-    Just r  -> (pbRedis <$> getYesod)
+  uuid'  <- lookupPostParam "uuid"
+  case (right',uuid') of
+    (Nothing,_) -> return $ object
+                   [ "status"      .= ("error" :: T.Text)
+                   , "msg"         .= ("need right" :: T.Text)
+                   , "status-code" .= (12 :: Int)
+                   ]
+    (_,Nothing) -> return $ object
+                   [ "status"      .= ("error" :: T.Text)
+                   , "msg"         .= ("need uuid" :: T.Text)
+                   , "status-code" .= (12 :: Int)
+                   ]
+    (Just r,Just u)  -> (pbRedis <$> getYesod)
       >>= \cp -> liftIO $ withResource cp
       (\c ->
          let r' = read $ T.unpack r
@@ -123,7 +135,9 @@ putAuthR = do
                Right False -> False
                _           -> True
            e <-  runRedis c $ do
-             set randStr $ TE.encodeUtf8 r
+             set randStr $ B.pack $ show $ Record { rUUID = T.unpack u
+                                                  , rRight = r'
+                                                  }
              expire randStr $ if r' < 2 then 1820 else 7220
              Right e <- ttl randStr
              return e
