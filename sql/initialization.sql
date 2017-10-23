@@ -63,6 +63,8 @@ CREATE TABLE table_book_kind
   , key_edition      INTEGER
   , key_publish_date DATE
   , key_imgs         BYTEA
+  , key_tags         TEXT[]
+  , key_snapshot     TEXT
   )
 ;
 COMMENT ON TABLE table_book_kind
