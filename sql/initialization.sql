@@ -106,7 +106,6 @@ CREATE TABLE table_order_list
   , key_timestamp DATE NOT NULL
   , key_book_opt  UUID[]
   , key_status VARCHAR[6]
-  , key
   )
 COMMENT ON TABLE table_book_operation
   IS 'Order list, or say wander list'
