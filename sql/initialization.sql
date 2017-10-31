@@ -107,6 +107,16 @@ CREATE TABLE table_order_list
   , key_book_opt  UUID[]
   , key_status VARCHAR[6]
   )
+;
 COMMENT ON TABLE table_book_operation
-  IS 'Order list, or say wander list'
+  IS 'Order list'
+;
+
+CREATE TABLE table_wonder_list
+  ( key_uuid UUID PRIMARY KEY
+  , key_book_k UUID[]
+  )
+;
+COMMENT ON TABLE table_wonder_list
+  IS 'Wonder list'
 ;
