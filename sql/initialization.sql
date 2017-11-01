@@ -47,6 +47,7 @@ CREATE TABLE table_account
   , key_sex           BOOLEAN
   , key_tel           BIGINT        UNIQUE NOT NULL CHECK(key_tel > 10000000000 AND key_tel < 20000000000)
   , key_right         REAL
+  , key_log           UUID
   )
 ;
 COMMENT ON TABLE table_account
@@ -56,15 +57,15 @@ COMMENT ON TABLE table_account
 -- create the table for book (kind)
 CREATE TABLE table_book_kind
   ( key_isbn         VARCHAR(20) PRIMARY KEY
-  , key_clc          VARCHAR(20)
+  , key_lc           VARCHAR(20)
   , key_name         TEXT
   , key_auth         TEXT[]
   , key_publisher    VARCHAR(64)
   , key_edition      INTEGER
   , key_publish_date DATE
-  , key_imgs         BYTEA
+  , key_imgs         UUID
   , key_tags         TEXT[]
-  , key_snapshot     TEXT
+  , key_abstract     TEXT
   )
 ;
 COMMENT ON TABLE table_book_kind
@@ -75,7 +76,7 @@ COMMENT ON TABLE table_book_kind
 CREATE TABLE table_book_instance
   ( key_uuid   UUID PRIMARY KEY
   , key_isbn   VARCHAR(20) -- without the limitation of foreign key
-  , key_status VARCHAR(4)  -- aubr
+  , key_status VARCHAR(8)  -- aubr
                            -- a for available
                            -- b for borrow
                            -- u for unavailable
@@ -93,7 +94,7 @@ COMMENT ON TABLE table_book_instance
 CREATE TABLE table_book_operation
   ( key_uuid UUID PRIMARY KEY
   , key_return_date DATE[]
-  , key_status VARCHAR(4) -- same to book instance's
+  , key_status VARCHAR(8) -- same to book instance's
   )
 ;
 COMMENT ON TABLE table_book_operation
@@ -112,11 +113,19 @@ COMMENT ON TABLE table_book_operation
   IS 'Order list'
 ;
 
-CREATE TABLE table_wonder_list
+CREATE TABLE table_image
   ( key_uuid UUID PRIMARY KEY
-  , key_book_k UUID[]
+  , key_mime TEXT NOT NULL
+  , key_data BYTEA
   )
 ;
-COMMENT ON TABLE table_wonder_list
-  IS 'Wonder list'
+COMMENT ON TABLE table image
+  IS 'images'
+;
+
+CREATE TABLE table_location
+  ( key_begin TEXT NOT NULL
+  , key_end TEXT NOT NULL
+  , key_location TEXT PRIMARY KEY
+  )
 ;
