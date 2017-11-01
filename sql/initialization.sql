@@ -47,7 +47,8 @@ CREATE TABLE table_account
   , key_sex           BOOLEAN
   , key_tel           BIGINT        UNIQUE NOT NULL CHECK(key_tel > 10000000000 AND key_tel < 20000000000)
   , key_right         REAL
-  , key_log           UUID
+  , key_logo          UUID
+  , key_pledge        NUMERIC(10,2)
   )
 ;
 COMMENT ON TABLE table_account
@@ -107,7 +108,7 @@ CREATE TABLE table_order_list
   , key_user UUID NOT NULL
   , key_timestamp DATE NOT NULL
   , key_book_opt  UUID[]
-  , key_status VARCHAR[6]
+  , key_status VARCHAR(8)
   )
 ;
 COMMENT ON TABLE table_book_operation
@@ -120,7 +121,7 @@ CREATE TABLE table_image
   , key_data BYTEA
   )
 ;
-COMMENT ON TABLE table image
+COMMENT ON TABLE table_image
   IS 'images'
 ;
 
@@ -130,3 +131,18 @@ CREATE TABLE table_location
   , key_location TEXT PRIMARY KEY
   )
 ;
+COMMENT ON TABLE table_location
+  IS 'location'
+;
+
+cREATE TABLE table_search_history
+  ( key_book UUID NOT NULL
+  , key_user UUID NOT NULL
+  , key_time TIME NOT NULL
+  , PRIMARY KEY (key_book,key_user,key_time)
+  )
+;
+COMMENT ON TABLE table_search_history
+  IS 'search history'
+;
+
