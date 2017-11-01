@@ -66,6 +66,7 @@ CREATE TABLE table_book_kind
   , key_imgs         UUID
   , key_tags         TEXT[]
   , key_abstract     TEXT
+  , key_stu_id       VARCHAR(16)
   )
 ;
 COMMENT ON TABLE table_book_kind
