@@ -68,7 +68,6 @@ CREATE TABLE table_book_kind
   , key_imgs         UUID
   , key_tags         TEXT[]
   , key_abstract     TEXT
-  , key_stu_id       VARCHAR(16)
   )
 ;
 COMMENT ON TABLE table_book_kind
@@ -96,7 +95,7 @@ COMMENT ON TABLE table_book_instance
 -- create the table of operation
 CREATE TABLE table_book_operation
   ( key_uuid UUID PRIMARY KEY
-  , key_return_date DATE[]
+  , key_date DATE[]
   , key_status VARCHAR(8) -- same to book instance's
   )
 ;
@@ -108,7 +107,7 @@ CREATE TABLE table_order_list
   ( key_uuid UUID PRIMARY KEY
   , key_user UUID NOT NULL
   , key_timestamp DATE NOT NULL
-  , key_book_opt  UUID[]
+  , key_book_opt  UUID
   , key_status VARCHAR(8)
   )
 ;
@@ -136,8 +135,8 @@ COMMENT ON TABLE table_location
   IS 'location'
 ;
 
-cREATE TABLE table_search_history
-  ( key_book UUID NOT NULL
+CREATE TABLE table_search_history
+  ( key_book VARCHAR(20) NOT NULL
   , key_user UUID NOT NULL
   , key_time TIME NOT NULL
   , PRIMARY KEY (key_book,key_user,key_time)
