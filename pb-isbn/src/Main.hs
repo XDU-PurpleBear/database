@@ -1,4 +1,4 @@
-{-# LANGAUGE ViewPatterns      #-}
+{-# LANGUAGE ViewPatterns      #-}
 {-# LANGUAGE MultiWayIf        #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
@@ -64,11 +64,18 @@ instance ToJSON Record where
 
 instance FromRow Record where
   fromRow = Record
-            <$> field <*> field
-            <*> field <*> (PGArray <$> field)
-            <*> field <*> field
-            <*> field <*> field
-            <*> field <*> field
+            <$> field
+            <*> field
+            <*> field
+            <*> (fromPGArray <$> field)
+            <*> field
+            <*> field
+            <*> field
+            <*> field
+            <*> (fromPGArray <$> field)
+            <*> field
+
+
 
 mkYesod "PB_ISBN" [parseRoutes|
 /api/v1/isbn/#Int ISBNR GET
@@ -82,7 +89,7 @@ getISBNR isbn = do
   cp <-  pbDatabase <$> getYesod
   rt <- liftIO $ withResource cp $ \c -> do
     query c [sql|
-                SELECT isbn,lc,title,auths,publisher,publish_date,img_uuid,tags,abstract
+                SELECT isbn,lc,title,auths,publisher,edition,publish_date,img_uuid,tags,abstract
                 FROM table_upstream
                 WHERE isbn = ?
                 |]

@@ -31,6 +31,5 @@ executable pb-isbn
                      , postgresql-simple >= 0.5
                      , uuid-types >= 1.0
 
-  default-extensions:  ViewPatterns
   hs-source-dirs:      src
   default-language:    Haskell2010

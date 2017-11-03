@@ -1,11 +1,12 @@
 
 
-CREATE TABLE table_source
-  ( isbn TEXT PRIMARY KEY
+CREATE TABLE table_upstream
+  ( isbn BIGINT PRIMARY KEY
   , lc TEXT
   , title TEXT
   , auths TEXT[]
   , publisher TEXT
+  , edition Int
   , publish_date DATE
   , img_uuid UUID
   , tags TEXT[]
