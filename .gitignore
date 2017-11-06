@@ -36,3 +36,6 @@ test
 ## un-ignore
 !glob-auth/test
 !glob-core/test
+
+# for PyCharm
+__pycache__
