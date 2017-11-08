@@ -26,8 +26,8 @@ if [ x"$TRAVIS_PULL_REQUEST" == "xfalse" ]; then
     export GIT_TAG=`echo $GIT_TAG | sed 's/\//-/g'`
     export PB_AUTH_IMAGE_TAG=pb-auth-$GIT_TAG
     export PB_LOGGER_IMAGE_TAG=pb-logger-$GIT_TAG
+    export PB_ISBN_IMAGE_TAG=pb-isbn-$GIT_TAG
     export PGSQL_IMAGE_TAG=pgsql-$GIT_TAG
-    export PG_ISBN_IMAGE_TAG=pb-isbn-$GIT_TAG
     echo copy files
     sudo cp $HOME/.local/bin/pb-auth   docker.tmp/bin
     sudo cp $HOME/.local/bin/pb-logger docker.tmp/bin
