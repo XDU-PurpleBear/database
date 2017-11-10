@@ -109,6 +109,7 @@ CREATE TABLE table_order_list
   , key_timestamp DATE NOT NULL
   , key_book_opt  UUID
   , key_status VARCHAR(8)
+  , key_bookid UUID
   )
 ;
 COMMENT ON TABLE table_book_operation

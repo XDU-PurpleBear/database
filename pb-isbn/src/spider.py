@@ -72,6 +72,7 @@ def fetch_isbn_info(conn,isbn):
                 img_ = r.read()
                 img_mime = x.getheader('Content-Type')
         except error.URLError as e:
+            print('time out for fetching the images')
             img_ = None
 
     with conn.cursor() as cur:
@@ -79,14 +80,20 @@ def fetch_isbn_info(conn,isbn):
             img_uuid = None
         else:
             img_uuid = uuid.uuid4()
-            cur.execute("INSERT INTO table_image"
-                        "(uuid,img,mime)"
-                        "VALUES (%s,%s,%s)",
-                        (img_uuid,img_,img_mime))
-        cur.execute("INSERT INTO table_upstream"
-                    "(isbn,lc,title,auths,publisher,edition,publish_date,abstract,img_uuid,tags)"
-                    "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                    (isbn_,lc_,title_,authors_,publisher_,edition_,publisher_date_,abstract_,img_uuid,tags_))
+            try:
+                cur.execute("INSERT INTO table_image"
+                            "(uuid,img,mime)"
+                            "VALUES (%s,%s,%s)",
+                            (img_uuid,img_,img_mime))
+            except psycopg2.InternalError as e:
+                print('has such image with uuid')
+        try:
+            cur.execute("INSERT INTO table_upstream"
+                        "(isbn,lc,title,auths,publisher,edition,publish_date,abstract,img_uuid,tags)"
+                        "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (isbn_,lc_,title_,authors_,publisher_,edition_,publisher_date_,abstract_,img_uuid,tags_))
+        except psycopg2.InternalError as e:
+            print('Has this book')
         conn.commit()
     return isbn_
 
