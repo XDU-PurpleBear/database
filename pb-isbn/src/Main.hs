@@ -37,15 +37,15 @@ data PB_ISBN = PB_ISBN
 
 data Record = Record
             { rISBN :: Int
-            , rLC   :: String
-            , rTitle :: String
+            , rLC   :: Maybe String
+            , rTitle :: Maybe String
             , rAuths :: [String]
-            , rPublisher :: String
-            , rEdition :: Int
-            , rPublishData :: Day
-            , rImg  :: UUID
+            , rPublisher :: Maybe String
+            , rEdition :: Maybe Int
+            , rPublishData :: Maybe Day
+            , rImg  :: Maybe UUID
             , rTags :: [String]
-            , rAbstract :: String
+            , rAbstract :: Maybe String
             }
             deriving(Show,Eq)
 
@@ -57,7 +57,7 @@ instance ToJSON Record where
     , "auths" .= rAuths
     , "publisher" .= rPublisher
     , "publish-data" .= rPublishData
-    , "img-uuid" .= show rImg
+    , "img-uuid" .=  fmap show rImg
     , "tags" .= rTags
     , "abstract" .= rAbstract
     ]
