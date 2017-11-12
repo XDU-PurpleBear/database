@@ -60,6 +60,7 @@ instance ToJSON Record where
     , "img-uuid" .=  fmap show rImg
     , "tags" .= rTags
     , "abstract" .= rAbstract
+    , "edition" .= rEdition
     ]
 
 instance FromRow Record where
