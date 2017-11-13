@@ -24,10 +24,11 @@ if [ x"$TRAVIS_PULL_REQUEST" == "xfalse" ]; then
     cd $TRAVIS_BUILD_DIR
     stack install pb-auth pb-logger pb-isbn --ghc-options -O2 --ghc-options -threaded
     export GIT_TAG=`echo $GIT_TAG | sed 's/\//-/g'`
-    export PB_AUTH_IMAGE_TAG=pb-auth-$GIT_TAG
-    export PB_LOGGER_IMAGE_TAG=pb-logger-$GIT_TAG
-    export PB_ISBN_IMAGE_TAG=pb-isbn-$GIT_TAG
-    export PGSQL_IMAGE_TAG=pgsql-$GIT_TAG
+    export LATEST=latest
+    export PB_AUTH_IMAGE_TAG=pb-auth
+    export PB_LOGGER_IMAGE_TAG=pb-logger
+    export PB_ISBN_IMAGE_TAG=pb-isbn
+    export PGSQL_IMAGE_TAG=pgsql
     echo copy files
     sudo cp $HOME/.local/bin/pb-auth   docker.tmp/bin
     sudo cp $HOME/.local/bin/pb-logger docker.tmp/bin
@@ -36,9 +37,12 @@ if [ x"$TRAVIS_PULL_REQUEST" == "xfalse" ]; then
     sudo cp $TRAVIS_BUILD_DIR/.integration/dockerfiles/pb-logger.dockerfile docker.tmp
     sudo cp $TRAVIS_BUILD_DIR/.integration/dockerfiles/pb-isbn.dockerfile   docker.tmp
     cd docker.tmp
-    docker build -t qinka/pb-database:$PB_AUTH_IMAGE_TAG   -f pb-auth.dockerfile   . || true
-    docker build -t qinka/pb-database:$PB_LOGGER_IMAGE_TAG -f pb-logger.dockerfile . || true
-    docker build -t qinka/pb-database:$PB_ISBN_IMAGE_TAG   -f pb-isbn.dockerfile   . || true
+    docker build -t qinka/pb-database:$PB_AUTH_IMAGE_TAG-$GIT_TAG   -f pb-auth.dockerfile   . || true
+    docker build -t qinka/pb-database:$PB_LOGGER_IMAGE_TAG-$GIT_TAG -f pb-logger.dockerfile . || true
+    docker build -t qinka/pb-database:$PB_ISBN_IMAGE_TAG-$GIT_TAG   -f pb-isbn.dockerfile   . || true
+    docker tag qinka/pb-database:$PB_AUTH_IMAGE_TAG-$GIT_TAG   $PB_AUTH_IMAGE_TAG-$LATEST
+    docker tag qinka/pb-database:$PB_LOGGER_IMAGE_TAG-$GIT_TAG $PB_LOGGER_IMAGE_TAG-$LATEST
+    docker tag qinka/pb-database:$PB_ISBN_IMAGE_TAG-$GIT_TAG   $PB_ISBN_IMAGE_TAG-$LATEST
     echo build PostgreSQL image
     cd $TRAVIS_BUILD_DIR
     echo copy files

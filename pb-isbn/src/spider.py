@@ -25,7 +25,7 @@ class FII_Error(ValueError):
     pass
 
 
-def fetch_isbn_info(conn,isbn):
+def fetch_isbn_info(conn,isbn,fetch_img=True):
     if not isinstance(conn,psycopg2.extensions.connection):
         raise TypeError('bad operand type of cur')
     if isinstance(isbn,int):
@@ -64,7 +64,7 @@ def fetch_isbn_info(conn,isbn):
             publisher_date_ = datetime.now()
 
     img_ = None
-    if not (img_id is None):
+    if (not (img_id is None)) and fetch_img:
         try:
             cover = HTTP_PROTOCOL+'://'+COVER_URL+str(img_id)+'-M.jpg'
             print(cover)
