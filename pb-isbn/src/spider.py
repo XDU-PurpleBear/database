@@ -39,18 +39,31 @@ def fetch_isbn_info(conn,isbn,fetch_img=True):
     for k in j:
         has = True
         d = j[k]['details']
-        print(d['isbn_13'][0])
-        isbn_ = d['isbn_13'][0]
+        if 'isbn_13' in d:
+            isbn_ = d['isbn_13'][0]
+        elif 'isbn_10' in d:
+            isbn_ = '978'+d['isbn_10'][0]
+        elif 'notes' in d:
+            dd = d['notes']
+            if 'isbn_13' in dd:
+                isbn_ = dd['isbn_13'][0]
+            elif 'isbn_10' in dd:
+                isbn_ = '978'+dd['isbn_10'][0]
+        else:
+            raise FII_Error('no isbn')
+        print(isbn_)
         lc_ = d.get('lc_classifications',['NaN'])[0]
         title_ = d['title']
         authors_ = []
-        for i in d['authors']:
+        for i in d.get('authors',[]):
             authors_.append(i['name'])
-        publisher_ = d['publishers'][0]
+        publisher_ = d.get('publishers','unknown publisher')[0]
         edition_ = 1
-        publisher_date = d['publish_date']
+        publisher_date = d.get('publish_date','')
         print(publisher_date)
         abstract_ = d.get('description',None)
+        if type(abstract_) is dict:
+            abstract_ = abstract_.get('value','')
         img_id = d.get('covers',[None])[0]
         tags_ = d.get('subjects',[])
     if  not has:
@@ -61,7 +74,10 @@ def fetch_isbn_info(conn,isbn,fetch_img=True):
         try:
             publisher_date_ = datetime.strptime(publisher_date,'%B %d, %Y')
         except ValueError as e:
-            publisher_date_ = datetime.now()
+            try:
+                publisher_date_ = datetime.strptime(publisher_date,'%Y')
+            except ValueError as e:
+                publisher_date_ = datetime.now()
 
     img_ = None
     if (not (img_id is None)) and fetch_img:

@@ -12,8 +12,13 @@ def main():
     print('begin to fetch')
     for isbn in isbns:
       print('fetch: ' + isbn)
-      fetch_isbn_info(c,int(isbn),fetch_img=False)
-    print('done')
+      try:
+        fetch_isbn_info(c,int(isbn),fetch_img=False)
+        print('done')
+      except FII_Error as e:
+        print(e)
+      except psycopg2.IntegrityError as e:
+        print(e)
 
 if __name__ == '__main__':
   main()
