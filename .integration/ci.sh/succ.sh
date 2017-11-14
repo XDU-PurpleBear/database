@@ -40,9 +40,9 @@ if [ x"$TRAVIS_PULL_REQUEST" == "xfalse" ]; then
     docker build -t qinka/pb-database:$PB_AUTH_IMAGE_TAG-$GIT_TAG   -f pb-auth.dockerfile   . || true
     docker build -t qinka/pb-database:$PB_LOGGER_IMAGE_TAG-$GIT_TAG -f pb-logger.dockerfile . || true
     docker build -t qinka/pb-database:$PB_ISBN_IMAGE_TAG-$GIT_TAG   -f pb-isbn.dockerfile   . || true
-    docker tag qinka/pb-database:$PB_AUTH_IMAGE_TAG-$GIT_TAG   $PB_AUTH_IMAGE_TAG-$LATEST
-    docker tag qinka/pb-database:$PB_LOGGER_IMAGE_TAG-$GIT_TAG $PB_LOGGER_IMAGE_TAG-$LATEST
-    docker tag qinka/pb-database:$PB_ISBN_IMAGE_TAG-$GIT_TAG   $PB_ISBN_IMAGE_TAG-$LATEST
+    docker tag qinka/pb-database:$PB_AUTH_IMAGE_TAG-$GIT_TAG   qinka/pb-database:$PB_AUTH_IMAGE_TAG-$LATEST    || true
+    docker tag qinka/pb-database:$PB_LOGGER_IMAGE_TAG-$GIT_TAG qinka/pb-database:$PB_LOGGER_IMAGE_TAG-$LATEST  || true
+    docker tag qinka/pb-database:$PB_ISBN_IMAGE_TAG-$GIT_TAG   qinka/pb-database:$PB_ISBN_IMAGE_TAG-$LATEST    || true
     echo build PostgreSQL image
     cd $TRAVIS_BUILD_DIR
     echo copy files
