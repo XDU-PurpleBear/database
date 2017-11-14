@@ -86,7 +86,7 @@ def fetch_isbn_info(conn,isbn,fetch_img=True):
             print(cover)
             with request.urlopen(cover) as r:
                 img_ = r.read()
-                img_mime = x.getheader('Content-Type')
+                img_mime = r.getheader('Content-Type')
         except error.URLError as e:
             print('time out for fetching the images')
             img_ = None
