@@ -4,6 +4,7 @@ from urllib import request
 from urllib import error
 import json
 import psycopg2
+import psycopg2.extras
 from datetime import datetime
 import uuid
 
@@ -25,7 +26,7 @@ class FII_Error(ValueError):
     pass
 
 
-def fetch_isbn_info(conn,isbn,fetch_img=True):
+def fetch_isbn_info(conn,isbn,fetch_img=True,img_size='L'):
     if not isinstance(conn,psycopg2.extensions.connection):
         raise TypeError('bad operand type of cur')
     if isinstance(isbn,int):
@@ -82,7 +83,7 @@ def fetch_isbn_info(conn,isbn,fetch_img=True):
     img_ = None
     if (not (img_id is None)) and fetch_img:
         try:
-            cover = HTTP_PROTOCOL+'://'+COVER_URL+str(img_id)+'-M.jpg'
+            cover = HTTP_PROTOCOL+'://'+COVER_URL+str(img_id)+'-'+img_size+'.jpg'
             print(cover)
             with request.urlopen(cover) as r:
                 img_ = r.read()
@@ -100,14 +101,14 @@ def fetch_isbn_info(conn,isbn,fetch_img=True):
                 cur.execute("INSERT INTO table_image"
                             "(uuid,img,mime)"
                             "VALUES (%s,%s,%s)",
-                            (img_uuid,img_,img_mime))
+                            (psycopg2.extras.UUID_adapter(img_uuid),psycopg2.Binary(img_),img_mime))
             except psycopg2.InternalError as e:
                 print('has such image with uuid')
         try:
             cur.execute("INSERT INTO table_upstream"
                         "(isbn,lc,title,auths,publisher,edition,publish_date,abstract,img_uuid,tags)"
                         "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                        (isbn_,lc_,title_,authors_,publisher_,edition_,publisher_date_,abstract_,img_uuid,tags_))
+                        (isbn_,lc_,title_,authors_,publisher_,edition_,publisher_date_,abstract_,psycopg2.extras.UUID_adapter(img_uuid),tags_))
         except psycopg2.InternalError as e:
             print('Has this book')
         conn.commit()

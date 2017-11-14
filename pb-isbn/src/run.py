@@ -13,7 +13,7 @@ def main():
     for isbn in isbns:
       print('fetch: ' + isbn)
       try:
-        fetch_isbn_info(c,int(isbn),fetch_img=False)
+        fetch_isbn_info(c,int(isbn),fetch_img=True)
         print('done')
       except FII_Error as e:
         print(e)
