@@ -49,7 +49,7 @@ CREATE TABLE table_account
   , key_right         REAL
   , key_logo          UUID
   , key_pledge        NUMERIC(10,2)
-  , key_stu_id        BIGINT       UNIQUE NOT NULL CHECK(key_tel > 10000000000 AND key_tel < 20000000000)
+  , key_stu_id        BIGINT       UNIQUE NOT NULL CHECK(key_stu_id > 10000000000 AND key_std_id < 20000000000)
   )
 ;
 COMMENT ON TABLE table_account

@@ -69,17 +69,7 @@ def fetch_isbn_info(conn,isbn,fetch_img=True,img_size='L'):
         tags_ = d.get('subjects',[])
     if  not has:
         raise FII_Error('empty info without data')
-    try:
-        publisher_date_ = datetime.strptime(publisher_date,'%B %Y')
-    except ValueError as e:
-        try:
-            publisher_date_ = datetime.strptime(publisher_date,'%B %d, %Y')
-        except ValueError as e:
-            try:
-                publisher_date_ = datetime.strptime(publisher_date,'%Y')
-            except ValueError as e:
-                publisher_date_ = datetime.now()
-
+    publisher_date_ = parseDate(publisher_date)
     img_ = None
     if (not (img_id is None)) and fetch_img:
         try:
@@ -97,6 +87,14 @@ def fetch_isbn_info(conn,isbn,fetch_img=True,img_size='L'):
             img_uuid = None
         else:
             img_uuid = uuid.uuid4()
+        try:
+            cur.execute("INSERT INTO table_upstream"
+                        "(isbn,lc,title,auths,publisher,edition,publish_date,abstract,img_uuid,tags)"
+                        "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (isbn_,lc_,title_,authors_,publisher_,edition_,publisher_date_,abstract_,ad_uuid(img_uuid),tags_))
+        except psycopg2.InternalError as e:
+            print('Has this book')
+        if not (img_uuid is None):
             try:
                 cur.execute("INSERT INTO table_image"
                             "(uuid,img,mime)"
@@ -104,13 +102,29 @@ def fetch_isbn_info(conn,isbn,fetch_img=True,img_size='L'):
                             (psycopg2.extras.UUID_adapter(img_uuid),psycopg2.Binary(img_),img_mime))
             except psycopg2.InternalError as e:
                 print('has such image with uuid')
-        try:
-            cur.execute("INSERT INTO table_upstream"
-                        "(isbn,lc,title,auths,publisher,edition,publish_date,abstract,img_uuid,tags)"
-                        "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                        (isbn_,lc_,title_,authors_,publisher_,edition_,publisher_date_,abstract_,psycopg2.extras.UUID_adapter(img_uuid),tags_))
-        except psycopg2.InternalError as e:
-            print('Has this book')
         conn.commit()
     return isbn_
 
+
+def parseDate(publisher_date):
+    try:
+        publisher_date_ = datetime.strptime(publisher_date,'%B %Y')
+    except ValueError as e:
+        try:
+            publisher_date_ = datetime.strptime(publisher_date,'%B %d, %Y')
+        except ValueError as e:
+            try:
+                publisher_date_ = datetime.strptime(publisher_date,'%Y')
+            except ValueError as e:
+                try:
+                    publisher_date_ = datetime.strptime(publisher_date,'%M-$D-%Y')
+                except ValueError as e:
+                    publisher_date_ = datetime.now()
+    return publisher_date_
+
+def ad_uuid(u):
+    if u is None:
+        return None
+    else:
+        return psycopg2.extras.UUID_adapter(u)
+        
