@@ -1,7 +1,9 @@
-#! env python3
+#! env python2
 
-from urllib import request
-from urllib import error
+
+import urllib
+#from urllib import request
+#from urllib import error
 import json
 import psycopg2
 import psycopg2.extras
@@ -25,18 +27,21 @@ def fetch_book_json(isbn):
   if isinstance(isbn,int):
     isbn = str(isbn)
   url = http_protocol(api_url(isbn))
-  with request.urlopen(url) as r:
-    if r.status != 200:
-      return None
-    return json.loads(r.read())
+  r = urllib.urlopen(url)
+  if r.getcode() != 200:
+    rt = None
+  rt = json.loads(r.read())
+  r.close()
+  return rt
 def toBook(j):
-  with request.urlopen(j['images']['large']) as r:
-    if r.status != 200:
-      img = None
-      img_mime = None
-    else:
-      img = r.read()
-      img_mime = r.getheader('Content-Type')
+  r = urllib.urlopen(j['images']['large'])
+  if r.getcode() != 200:
+    img = None
+    img_mime = None
+  else:
+    img = r.read()
+    img_mime = r.info()['Content-Type']
+  r.close()
   tags_ = j.get('tags',[])
   tags = []
   for t in tags_:
@@ -68,12 +73,15 @@ class Book:
     self.lc = lc
     self.auths = auths
     self.publisher = publisher
+    publish_date_ = None
     if not (publish_date is None):
       try:
-        if isinstance(publish_date,str):
+        if isinstance(publish_date,(str,unicode)):
           publish_date_ = datetime.strptime(publish_date,'%Y-%M')
+          print(publish_date_)
       except ValueError as e:
         publish_date_ = datetime.now()
+        print(publish_date_)
     self.publish_date = publish_date_
     self.img = img
     self.img_mime = img_mime
@@ -84,30 +92,31 @@ class Book:
 
 
   def update(self,conn):
-    with conn.cursor() as cur:
-      if self.img is None:
-        uuid_ = None
-      else:
-        uuid_ = psycopg2.extras.UUID_adapter(uuid.uuid4())
+    cur = conn.cursor()
+    if self.img is None:
+      uuid_ = None
+    else:
+      uuid_ = psycopg2.extras.UUID_adapter(uuid.uuid4())
+    try:
+      cur.execute("INSERT INTO table_upstream"
+                  "(isbn,lc,title,auths,publisher,edition,publish_date,abstract,img_uuid,tags)"
+                  "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                  (self.isbn,self.lc,self.title,self.auths,self.publisher,self.edition,self.publish_date,self.abstract,uuid_,self.tags))
+    except psycopg2.InternalError as e:
+      conn.rollback()
+      print(e)
+      print('Has this book')
+      return
+    if not (self.img is None):
       try:
-        cur.execute("INSERT INTO table_upstream"
-                    "(isbn,lc,title,auths,publisher,edition,publish_date,abstract,img_uuid,tags)"
-                    "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                    (self.isbn,self.lc,self.title,self.auths,self.publisher,self.edition,self.publish_date,self.abstract,uuid_,self.tags))
+        cur.execute("INSERT INTO table_image"
+                    "(uuid,img,mime)"
+                    "VALUES (%s,%s,%s)",
+                    (uuid_,psycopg2.Binary(self.img),self.img_mime))
       except psycopg2.InternalError as e:
         conn.rollback()
         print(e)
-        print('Has this book')
-        return
-      if not (self.img is None):
-        try:
-          cur.execute("INSERT INTO table_image"
-                      "(uuid,img,mime)"
-                      "VALUES (%s,%s,%s)",
-                      (uuid_,psycopg2.Binary(self.img),self.img_mime))
-        except psycopg2.InternalError as e:
-          conn.rollback()
-          print(e)
-          print('has such image with uuid')
-      conn.commit()
+        print('has such image with uuid')
+    conn.commit()
+    cur.close()
     return self.isbn
