@@ -38,7 +38,7 @@ COMMENT ON SCHEMA opt_log
 CREATE TABLE table_account
   ( key_uuid          UUID          PRIMARY KEY
   , key_password      VARCHAR(512)
-  , key_user_name     VARCHAR(64)   UNIQUE
+  , key_user_name     VARCHAR(64)
   , key_first_name    VARCHAR(64)
   , key_last_name     VARCHAR(64)
   , key_birthday      DATE
