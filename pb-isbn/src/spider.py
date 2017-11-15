@@ -7,6 +7,7 @@ import psycopg2
 import psycopg2.extras
 from datetime import datetime
 import uuid
+import os
 
 # curl https://openlibrary.org/api/books\?bibkeys\=ISBN:9780980200447\&jscmd\=details\&format\=json
 # isbn = d['identifiers']['isbn_13'][0]
@@ -52,6 +53,7 @@ def fetch_isbn_info(conn,isbn,fetch_img=True,img_size='L'):
                 isbn_ = '978'+dd['isbn_10'][0]
         else:
             raise FII_Error('no isbn')
+        isbn_ = isbn_.replace('-','')
         print(isbn_)
         lc_ = d.get('lc_classifications',['NaN'])[0]
         title_ = d['title']
@@ -128,3 +130,24 @@ def ad_uuid(u):
     else:
         return psycopg2.extras.UUID_adapter(u)
         
+
+def run_f_t(c,f,t,fetch_img=True,img_size='L'):
+    if not (isinstance(f,int) and isinstance(t,int)):
+        raise TypeError('f,t should be int')
+    for i in range(f,t):
+        print("fetch " + str(i))
+      try:
+        fetch_isbn_info(c,i,fetch_img=fetch_img,img_size=img_size)
+        print('done')
+      except FII_Error as e:
+        print(e)
+      except psycopg2.IntegrityError as e:
+        print(e)
+
+
+def fetch_them(c,fs,ts,fetch_img=True,img_size='L'):
+  for i in range(0,len(fs)):
+    pid = os.fork()
+    if pid == 0:
+      run_f_t(c,fs[i],ts[i],fetch_img=fetch_img,img_size=img_size)
+      break
