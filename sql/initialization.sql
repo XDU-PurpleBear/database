@@ -14,7 +14,8 @@ CREATE DATABASE purple
        CONNECTION LIMIT = -1
 ;
 COMMENT ON DATABASE purple
-  IS 'The database for library manage syst'
+  IS 'The database for library manage syst';
+
 
 -- change database
 \c purple
